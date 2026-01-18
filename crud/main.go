@@ -73,12 +73,39 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+func Put(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
+	c, err := strconv.Atoi(s)
+	if err != nil {
+		http.Error(w, "invalid data", http.StatusBadRequest)
+		return
+	}
+
+	var m Person
+	err1 := json.NewDecoder(r.Body).Decode(&m)
+	if err1 != nil {
+		http.Error(w, "invalid data", http.StatusBadRequest)
+		return
+	}
+
+	for i, v := range Human {
+		if v.Id == c {
+			m.Id = c
+			Human[i] = m
+			json.NewEncoder(w).Encode(Human[i])
+			return
+		}
+	}
+	w.WriteHeader(http.StatusAccepted)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /person", http.HandlerFunc(Get))
 	mux.Handle("POST /person", http.HandlerFunc(Post))
 	mux.Handle("GET /person/{id}", http.HandlerFunc(GetById))
+	mux.Handle("PUT /person/{id}", http.HandlerFunc(Put))
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
