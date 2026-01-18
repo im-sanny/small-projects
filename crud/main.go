@@ -34,10 +34,29 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Post(w http.ResponseWriter, r *http.Request) {
+	var m Person
+	err := json.NewDecoder(r.Body).Decode(&m)
+	if err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	nI := len(Human) + 1
+	m.Id = nI
+	Human = append(Human, m)
+	err1 := json.NewEncoder(w).Encode(m)
+	if err1 != nil {
+		http.Error(w, "failed to create data", http.StatusBadRequest)
+		return
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /person", http.HandlerFunc(Get))
+	mux.Handle("POST /person", http.HandlerFunc(Post))
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
