@@ -99,6 +99,39 @@ func Put(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+func Patch(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
+	c, err := strconv.Atoi(s)
+	if err != nil {
+		http.Error(w, "invalid data", http.StatusBadRequest)
+		return
+	}
+
+	var m Person
+	err1 := json.NewDecoder(r.Body).Decode(&m)
+	if err1 != nil {
+		http.Error(w, "invalid data", http.StatusBadRequest)
+		return
+	}
+
+	for i, v := range Human {
+		if v.Id == c {
+			if m.Name != "" {
+				Human[i].Name = m.Name
+			}
+			if m.Age != 0 {
+				Human[i].Age = m.Age
+			}
+			if m.Details != "" {
+				Human[i].Details = m.Details
+			}
+			json.NewEncoder(w).Encode(Human[i])
+			return
+		}
+	}
+	w.WriteHeader(http.StatusAccepted)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
@@ -106,6 +139,7 @@ func main() {
 	mux.Handle("POST /person", http.HandlerFunc(Post))
 	mux.Handle("GET /person/{id}", http.HandlerFunc(GetById))
 	mux.Handle("PUT /person/{id}", http.HandlerFunc(Put))
+	mux.Handle("PATCH /person/{id}", http.HandlerFunc(Patch))
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
