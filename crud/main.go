@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Person struct {
@@ -52,11 +53,32 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetById(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
+	c, err := strconv.Atoi(s)
+	if err != nil {
+		http.Error(w, "invalid data", http.StatusBadRequest)
+		return
+	}
+
+	for _, v := range Human {
+		if v.Id == c {
+			err := json.NewEncoder(w).Encode(v)
+			if err != nil {
+				http.Error(w, "data not found", http.StatusNotFound)
+				return
+			}
+		}
+	}
+	w.WriteHeader(http.StatusAccepted)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /person", http.HandlerFunc(Get))
 	mux.Handle("POST /person", http.HandlerFunc(Post))
+	mux.Handle("GET /person/{id}", http.HandlerFunc(GetById))
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
