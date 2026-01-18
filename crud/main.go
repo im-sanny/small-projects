@@ -132,6 +132,25 @@ func Patch(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
+func Delete(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+		return
+	}
+
+	for i := range Human {
+		if Human[i].Id == id {
+			Human = append(Human[:i], Human[i+1:]...)
+			w.WriteHeader(http.StatusNoContent)
+			return
+		}
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func main() {
 	mux := http.NewServeMux()
 
@@ -140,6 +159,7 @@ func main() {
 	mux.Handle("GET /person/{id}", http.HandlerFunc(GetById))
 	mux.Handle("PUT /person/{id}", http.HandlerFunc(Put))
 	mux.Handle("PATCH /person/{id}", http.HandlerFunc(Patch))
+	mux.Handle("DELETE /person/{id}", http.HandlerFunc(Delete))
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
