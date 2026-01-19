@@ -9,127 +9,132 @@ import (
 )
 
 type Person struct {
-	Id      int    `json:"id"`
+	ID      int    `json:"id"`
 	Name    string `json:"name"`
 	Age     int    `json:"age"`
 	Details string `json:"details"`
 }
 
-var Human = []Person{
-	{Id: 1, Name: "Tom", Age: 23, Details: "Tom is a good cat"},
-	{Id: 2, Name: "Jerry", Age: 22, Details: "Jerry is naughty mouse"},
-	{Id: 3, Name: "Bulldog", Age: 30, Details: "Bulldog is a stupid dog"},
+var store = []Person{
+	{ID: 1, Name: "Tom", Age: 23, Details: "Tom is a good cat"},
+	{ID: 2, Name: "Jerry", Age: 22, Details: "Jerry is naughty mouse"},
+	{ID: 3, Name: "Bulldog", Age: 30, Details: "Bulldog is a stupid dog"},
 }
 
 func Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodGet {
-		http.Error(w, "invalid request", http.StatusBadRequest)
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	encoder := json.NewEncoder(w).Encode(Human)
-	if encoder == nil {
-		http.Error(w, "human not found", http.StatusNotFound)
-		return
+	if err := json.NewEncoder(w).Encode(store); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 	}
 }
 
 func Post(w http.ResponseWriter, r *http.Request) {
-	var m Person
-	err := json.NewDecoder(r.Body).Decode(&m)
-	if err != nil {
-		http.Error(w, "invalid json", http.StatusBadRequest)
+	w.Header().Set("Content-Type", "application/json")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	nI := len(Human) + 1
-	m.Id = nI
-	Human = append(Human, m)
-	err1 := json.NewEncoder(w).Encode(m)
-	if err1 != nil {
-		http.Error(w, "failed to create data", http.StatusBadRequest)
+	var p Person
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
+
+	nextID := len(store) + 1
+	p.ID = nextID
+	store = append(store, p)
+
+	json.NewEncoder(w).Encode(p)
+	w.WriteHeader(http.StatusCreated)
 }
 
 func GetById(w http.ResponseWriter, r *http.Request) {
-	s := r.PathValue("id")
-	c, err := strconv.Atoi(s)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid data", http.StatusBadRequest)
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
-	for _, v := range Human {
-		if v.Id == c {
-			err := json.NewEncoder(w).Encode(v)
-			if err != nil {
-				http.Error(w, "data not found", http.StatusNotFound)
-				return
-			}
+	for _, v := range store {
+		if v.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(v)
+			return
 		}
 	}
-	w.WriteHeader(http.StatusAccepted)
+
+	http.Error(w, "Person not found", http.StatusNotFound)
 }
 
 func Put(w http.ResponseWriter, r *http.Request) {
-	s := r.PathValue("id")
-	c, err := strconv.Atoi(s)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid data", http.StatusBadRequest)
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
-	var m Person
-	err1 := json.NewDecoder(r.Body).Decode(&m)
-	if err1 != nil {
-		http.Error(w, "invalid data", http.StatusBadRequest)
+	var p Person
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
-	for i, v := range Human {
-		if v.Id == c {
-			m.Id = c
-			Human[i] = m
-			json.NewEncoder(w).Encode(Human[i])
+	for i := range store {
+		if store[i].ID == id {
+			p.ID = id
+			store[i] = p
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(p)
 			return
 		}
 	}
-	w.WriteHeader(http.StatusAccepted)
+
+	http.Error(w, "Person not found", http.StatusNotFound)
 }
 
 func Patch(w http.ResponseWriter, r *http.Request) {
-	s := r.PathValue("id")
-	c, err := strconv.Atoi(s)
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid data", http.StatusBadRequest)
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
 		return
 	}
 
-	var m Person
-	err1 := json.NewDecoder(r.Body).Decode(&m)
-	if err1 != nil {
-		http.Error(w, "invalid data", http.StatusBadRequest)
+	var patch Person
+	if err := json.NewDecoder(r.Body).Decode(&patch); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
 		return
 	}
 
-	for i, v := range Human {
-		if v.Id == c {
-			if m.Name != "" {
-				Human[i].Name = m.Name
+	for i := range store {
+		if store[i].ID == id {
+			if patch.Name != "" {
+				store[i].Name = patch.Name
 			}
-			if m.Age != 0 {
-				Human[i].Age = m.Age
+			if patch.Age != 0 {
+				store[i].Age = patch.Age
 			}
-			if m.Details != "" {
-				Human[i].Details = m.Details
+			if patch.Details != "" {
+				store[i].Details = patch.Details
 			}
-			json.NewEncoder(w).Encode(Human[i])
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(store[i])
 			return
 		}
 	}
-	w.WriteHeader(http.StatusAccepted)
+
+	http.Error(w, "Person not found", http.StatusNotFound)
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
@@ -140,9 +145,9 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i := range Human {
-		if Human[i].Id == id {
-			Human = append(Human[:i], Human[i+1:]...)
+	for i := range store {
+		if store[i].ID == id {
+			store = append(store[:i], store[i+1:]...)
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
