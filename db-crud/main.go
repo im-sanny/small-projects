@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type Person struct {
@@ -29,11 +30,23 @@ func Get(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(people)
 }
 
+func GetById(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	c, _ := strconv.Atoi(idStr)
+
+	var m Person
+	db.DB.QueryRow(`SELECT id, name, age, details FROM people WHERE id=$1`,
+		c,
+	).Scan(&m.ID, &m.Name, &m.Age, &m.Details)
+	json.NewEncoder(w).Encode(m)
+}
+
 func main() {
 	db.InitDB()
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /person", Get)
+	mux.HandleFunc("GET /person/{id}", GetById)
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
