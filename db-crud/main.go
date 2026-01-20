@@ -57,6 +57,22 @@ func Post(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(m)
 }
 
+func Put(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
+	c, _ := strconv.Atoi(s)
+
+	var m Person
+	json.NewDecoder(r.Body).Decode(&m)
+	err := db.DB.QueryRow(`
+	UPDATE people SET name=$1, age=$2, details=$3 WHERE id=$4
+	RETURNING id, name, age, details;
+	`, m.Name, m.Age, m.Details, c).Scan(&m.ID, &m.Name, &m.Age, &m.Details)
+	if err != nil {
+		fmt.Println(err)
+	}
+	json.NewEncoder(w).Encode(m)
+}
+
 func main() {
 	db.InitDB()
 	mux := http.NewServeMux()
@@ -64,6 +80,7 @@ func main() {
 	mux.HandleFunc("GET /person", Get)
 	mux.HandleFunc("GET /person/{id}", GetById)
 	mux.HandleFunc("POST /person", Post)
+	mux.HandleFunc("PUT /person/{id}", Put)
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
