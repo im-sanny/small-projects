@@ -97,6 +97,16 @@ func Patch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(m)
 }
 
+func Delete(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
+	c, _ := strconv.Atoi(s)
+
+	_, err := db.DB.Exec(`DELETE FROM people WHERE id=$1;`, c)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
 func main() {
 	db.InitDB()
 	mux := http.NewServeMux()
@@ -106,6 +116,7 @@ func main() {
 	mux.HandleFunc("POST /person", Post)
 	mux.HandleFunc("PUT /person/{id}", Put)
 	mux.HandleFunc("PATCH /person/{id}", Patch)
+	mux.HandleFunc("DELETE /person/{id}", Delete)
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
