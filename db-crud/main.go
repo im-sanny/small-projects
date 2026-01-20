@@ -41,12 +41,29 @@ func GetById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(m)
 }
 
+func Post(w http.ResponseWriter, r *http.Request) {
+	var m Person
+	json.NewDecoder(r.Body).Decode(&m)
+
+	err := db.DB.QueryRow(`
+	INSERT INTO people(name, age, details)
+	VALUES ($1, $2, $3)
+	RETURNING id;
+	`, m.Name, m.Age, m.Details).Scan(&m.ID)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	json.NewEncoder(w).Encode(m)
+}
+
 func main() {
 	db.InitDB()
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /person", Get)
 	mux.HandleFunc("GET /person/{id}", GetById)
+	mux.HandleFunc("POST /person", Post)
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
