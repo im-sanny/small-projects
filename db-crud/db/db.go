@@ -10,17 +10,17 @@ import (
 
 const connStr = "postgres://postgres:360420@localhost:5432/crud?sslmode=disable"
 
-var db *sql.DB
+var DB *sql.DB
 
 func InitDB() {
 	var err error
 
-	db, err := sql.Open("postgres", connStr)
+	DB, err = sql.Open("postgres", connStr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if err = db.Ping(); err != nil {
+	if err = DB.Ping(); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("db connection successful")
