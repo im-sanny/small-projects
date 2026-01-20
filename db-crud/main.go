@@ -73,6 +73,30 @@ func Put(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(m)
 }
 
+func Patch(w http.ResponseWriter, r *http.Request) {
+	s := r.PathValue("id")
+	c, _ := strconv.Atoi(s)
+
+	var m Person
+	json.NewDecoder(r.Body).Decode(&m)
+
+	err := db.DB.QueryRow(`
+	UPDATE people SET
+		name = COALESCE($1, name)
+		age = COALESCE($2, age)
+		details = COALESCE($3, details)
+	WHERE id=$4
+	RETURNING id, name, age, details;
+	`,
+		m.Name, m.Age, m.Details, c,
+	).Scan(&m.ID, &m.Name, &m.Age, &m.Details)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	json.NewEncoder(w).Encode(m)
+}
+
 func main() {
 	db.InitDB()
 	mux := http.NewServeMux()
@@ -81,6 +105,7 @@ func main() {
 	mux.HandleFunc("GET /person/{id}", GetById)
 	mux.HandleFunc("POST /person", Post)
 	mux.HandleFunc("PUT /person/{id}", Put)
+	mux.HandleFunc("PATCH /person/{id}", Patch)
 
 	fmt.Printf("server running on port :3000")
 	err := http.ListenAndServe(":3000", mux)
