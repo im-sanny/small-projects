@@ -111,12 +111,31 @@ func Patch(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
-	s := r.PathValue("id")
-	c, _ := strconv.Atoi(s)
-
-	_, err := db.DB.Exec(`DELETE FROM people WHERE id=$1;`, c)
+	var err error
+	idStr := r.PathValue("id")
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		fmt.Println(err)
+		http.Error(w, "Invalid ID format", http.StatusBadRequest)
+		return
+	}
+
+	result, err := db.DB.Exec(`DELETE FROM people WHERE id=$1;`, id)
+	if err != nil {
+		log.Printf("Failed to delete person: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("Failed to get rows affected: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	if rowsAffected == 0 {
+		http.Error(w, "Person not found", http.StatusNotFound)
+		return
 	}
 }
 
