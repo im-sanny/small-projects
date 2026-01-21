@@ -17,17 +17,30 @@ type Person struct {
 }
 
 func Get(w http.ResponseWriter, r *http.Request) {
-	rows, _ := db.DB.Query(`SELECT id, name, age, details FROM people`)
+	rows, err := db.DB.Query(`SELECT id, name, age, details FROM people`)
+	if err != nil {
+		log.Printf("failed to query people %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
 	defer rows.Close()
 
 	var people []Person
 
 	for rows.Next() {
 		var p Person
-		rows.Scan(&p.ID, &p.Name, &p.Age, &p.Details)
+		if err := rows.Scan(&p.ID, &p.Name, &p.Age, &p.Details); err != nil {
+			log.Printf("failed to scan row %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
 		people = append(people, p)
 	}
-	json.NewEncoder(w).Encode(people)
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(people); err != nil {
+		log.Printf("failed to encode response %v", err)
+	}
 }
 
 func GetById(w http.ResponseWriter, r *http.Request) {
@@ -82,8 +95,8 @@ func Patch(w http.ResponseWriter, r *http.Request) {
 
 	err := db.DB.QueryRow(`
 	UPDATE people SET
-		name = COALESCE($1, name)
-		age = COALESCE($2, age)
+		name = COALESCE($1, name),
+		age = COALESCE($2, age),
 		details = COALESCE($3, details)
 	WHERE id=$4
 	RETURNING id, name, age, details;
