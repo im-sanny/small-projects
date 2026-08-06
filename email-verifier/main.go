@@ -1,18 +1,3 @@
-// This program reads domain names from standard input, one domain per line.
-// For each domain, it checks:
-//
-//  1. Whether the domain has MX records.
-//     MX records are DNS records that say where email for the domain is handled.
-//
-//  2. Whether the domain has an SPF record.
-//     SPF is a TXT record that starts with "v=spf1".
-//
-//  3. Whether the domain has a DMARC record.
-//     DMARC is a TXT record located at "_dmarc.yourdomain.com"
-//     and usually starts with "v=DMARC1".
-//
-// The output is printed in a CSV-like format:
-// domain, hasMX, hasSPF, spfRecord, hasDMARC, dmarcRecord
 package main
 
 import (
@@ -175,3 +160,19 @@ func checkDomain(domain string) {
 		dmarcRecord,
 	)
 }
+
+// This program reads domain names from standard input, one domain per line.
+// For each domain, it checks:
+//
+//  1. Whether the domain has MX records.
+//     MX records are DNS records that say where email for the domain is handled.
+//
+//  2. Whether the domain has an SPF record.
+//     SPF is a TXT record that starts with "v=spf1".
+//
+//  3. Whether the domain has a DMARC record.
+//     DMARC is a TXT record located at "_dmarc.yourdomain.com"
+//     and usually starts with "v=DMARC1".
+//
+// The output is printed in a CSV-like format:
+// domain, hasMX, hasSPF, spfRecord, hasDMARC, dmarcRecord
