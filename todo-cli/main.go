@@ -13,10 +13,16 @@ var keep = []Todo{
 	{ID: 2, Text: "don't waste much time in social", Done: false},
 }
 
-func AddTodo(a string) {
-	fmt.Println(a)
+func AddTodo(a int, b string, c bool) (int, string, bool) {
+
+	id := len(keep) + 1
+	Todo.ID[] = id
+	keep = append(keep, Todo{})
+
+	return keep
 }
 
 func main() {
-	AddTodo("learn go")
+	AddTodo(len(keep)+1, "learn go", true)
+	fmt.Println(len(keep))
 }
