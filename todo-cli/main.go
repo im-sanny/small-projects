@@ -26,12 +26,22 @@ func AddTodo(text string, done bool) (string, bool) {
 }
 
 func ListTodo() {
+	for _, v := range keep {
+		fmt.Println(v.ID, v.Text)
+	}
+}
+
+func DeleteTodo(id int) {
 	for i, v := range keep {
-		fmt.Println(i, v.Text)
+		if v.ID == id {
+			keep = append(keep[:i], keep[i+1:]...)
+			return
+		}
 	}
 }
 
 func main() {
-	AddTodo("learn go", true)
+	AddTodo("learn go", false)
+	DeleteTodo(1)
 	ListTodo()
 }
