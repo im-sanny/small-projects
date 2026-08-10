@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+)
 
 type Todo struct {
 	ID   int
@@ -14,20 +19,21 @@ var keep = []Todo{
 }
 
 func AddTodo() (string, bool) {
-	var text string
-	var done bool
-
 	fmt.Println("enter todo:")
-	fmt.Scanln(&text)
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+
 	fmt.Println("enter todo status, true and false only:")
-	n, err := fmt.Scanln(&done)
-	fmt.Println("from n", n, "\nform err:", err)
+	bscan := bufio.NewScanner(os.Stdin)
+	bscan.Scan()
+	bconv := bscan.Text()
+	bc, _ := strconv.ParseBool(bconv)
 
 	id := len(keep) + 1
 	todo := Todo{
 		ID:   id,
-		Text: text,
-		Done: done,
+		Text: scanner.Text(),
+		Done: bc,
 	}
 	keep = append(keep, todo)
 
