@@ -13,7 +13,16 @@ var keep = []Todo{
 	{ID: 2, Text: "don't waste much time in social", Done: false},
 }
 
-func AddTodo(text string, done bool) (string, bool) {
+func AddTodo() (string, bool) {
+	var text string
+	var done bool
+
+	fmt.Println("enter todo:")
+	fmt.Scanln(&text)
+	fmt.Println("enter todo status, true and false only:")
+	n, err := fmt.Scanln(&done)
+	fmt.Println("from n", n, "\nform err:", err)
+
 	id := len(keep) + 1
 	todo := Todo{
 		ID:   id,
@@ -27,21 +36,25 @@ func AddTodo(text string, done bool) (string, bool) {
 
 func ListTodo() {
 	for _, v := range keep {
-		fmt.Println(v.ID, v.Text)
+		fmt.Println("ID:", v.ID, "\nText:", v.Text, "\nDone:", v.Done)
 	}
 }
 
-func DeleteTodo(id int) {
+func DeleteTodo() int {
+	var id int
+	fmt.Println("enter the id of todo u want to delete:")
+	fmt.Scanln(&id)
 	for i, v := range keep {
 		if v.ID == id {
 			keep = append(keep[:i], keep[i+1:]...)
-			return
+			return id
 		}
 	}
+	return id
 }
 
 func main() {
-	AddTodo("learn go", false)
-	DeleteTodo(1)
+	AddTodo()
+	DeleteTodo()
 	ListTodo()
 }
