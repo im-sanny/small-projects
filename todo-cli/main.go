@@ -18,22 +18,12 @@ var keep = []Todo{
 	{ID: 2, Text: "don't waste much time in social", Done: false},
 }
 
-func AddTodo() (string, bool) {
-	fmt.Println("enter todo:")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-
-	fmt.Println("enter todo status, true and false only:")
-	bscan := bufio.NewScanner(os.Stdin)
-	bscan.Scan()
-	bconv := bscan.Text()
-	bc, _ := strconv.ParseBool(bconv)
-
+func AddTodo(text string, done bool) (string, bool) {
 	id := len(keep) + 1
 	todo := Todo{
 		ID:   id,
-		Text: scanner.Text(),
-		Done: bc,
+		Text: text,
+		Done: done,
 	}
 	keep = append(keep, todo)
 
@@ -60,7 +50,19 @@ func DeleteTodo() int {
 }
 
 func main() {
-	AddTodo()
+	fmt.Println("enter todo:")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	text := scanner.Text()
+
+	fmt.Println("enter todo status, true and false only:")
+	bscan := bufio.NewScanner(os.Stdin)
+	bscan.Scan()
+	bconv := bscan.Text()
+	bc, _ := strconv.ParseBool(bconv)
+
+	AddTodo(text, bc)
+
 	DeleteTodo()
 	ListTodo()
 }
