@@ -17,7 +17,7 @@ var keep = []Todo{
 	{ID: 1, Text: "write 10 lines of code", Done: false},
 	{ID: 2, Text: "don't waste much time in social", Done: false},
 }
-var nextId int
+var nextId = 3
 
 func AddTodo(text string, done bool) (string, bool) {
 	id := nextId
@@ -30,6 +30,16 @@ func AddTodo(text string, done bool) (string, bool) {
 	keep = append(keep, todo)
 
 	return todo.Text, todo.Done
+}
+
+func UpdateTodo(id int, todo string, done bool) {
+	for i, v := range keep {
+		if v.ID == id {
+			keep[i].Text = todo
+			keep[i].Done = done
+			return
+		}
+	}
 }
 
 func ListTodo() {
@@ -58,7 +68,8 @@ func main() {
 			"1. Add Todo",
 			"\n2. List Todo",
 			"\n3. Delete Todo",
-			"\n4. Exit\n",
+			"\n4. Update Todo",
+			"\n5. Exit\n",
 
 			"\nChoose an option",
 		)
@@ -83,6 +94,21 @@ func main() {
 		case 3:
 			DeleteTodo()
 		case 4:
+			var uId int
+			fmt.Println("enter the todo number to update")
+			fmt.Scanln(&uId)
+			fmt.Println("enter Update todo text")
+			uscan := bufio.NewScanner(os.Stdin)
+			uscan.Scan()
+			utext := uscan.Text()
+
+			fmt.Println("enter update todo status")
+			udscan := bufio.NewScanner(os.Stdin)
+			udscan.Scan()
+			udconv := udscan.Text()
+			uc, _ := strconv.ParseBool(udconv)
+			UpdateTodo(uId, utext, uc)
+		case 5:
 			os.Exit(0)
 		}
 	}
