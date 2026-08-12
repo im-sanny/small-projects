@@ -17,9 +17,11 @@ var keep = []Todo{
 	{ID: 1, Text: "write 10 lines of code", Done: false},
 	{ID: 2, Text: "don't waste much time in social", Done: false},
 }
+var nextId int
 
 func AddTodo(text string, done bool) (string, bool) {
-	id := len(keep) + 1
+	id := nextId
+	nextId++
 	todo := Todo{
 		ID:   id,
 		Text: text,
@@ -50,19 +52,39 @@ func DeleteTodo() int {
 }
 
 func main() {
-	fmt.Println("enter todo:")
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	text := scanner.Text()
+	var op1 int
+	for {
+		fmt.Println(
+			"1. Add Todo",
+			"\n2. List Todo",
+			"\n3. Delete Todo",
+			"\n4. Exit\n",
 
-	fmt.Println("enter todo status, true and false only:")
-	bscan := bufio.NewScanner(os.Stdin)
-	bscan.Scan()
-	bconv := bscan.Text()
-	bc, _ := strconv.ParseBool(bconv)
+			"\nChoose an option",
+		)
+		fmt.Scanln(&op1)
 
-	AddTodo(text, bc)
+		switch op1 {
+		case 1:
 
-	DeleteTodo()
-	ListTodo()
+			fmt.Println("enter todo:")
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			text := scanner.Text()
+
+			fmt.Println("enter todo status, true and false only:")
+			bscan := bufio.NewScanner(os.Stdin)
+			bscan.Scan()
+			bconv := bscan.Text()
+			bc, _ := strconv.ParseBool(bconv)
+			AddTodo(text, bc)
+		case 2:
+			ListTodo()
+		case 3:
+			DeleteTodo()
+		case 4:
+			os.Exit(0)
+		}
+	}
+
 }
