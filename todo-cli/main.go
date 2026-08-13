@@ -18,6 +18,7 @@ var keep = []Todo{
 	{ID: 2, Text: "don't waste much time in social", Done: false},
 }
 var nextId = 3
+var scanner = bufio.NewScanner(os.Stdin)
 
 func AddTodo(text string, done bool) (string, bool) {
 	id := nextId
@@ -42,10 +43,8 @@ func UpdateTodo(id int, todo string, done bool) {
 	}
 }
 
-func ListTodo() {
-	for _, v := range keep {
-		fmt.Println("ID:", v.ID, "\nText:", v.Text, "\nDone:", v.Done)
-	}
+func ListTodo() []Todo {
+	return keep
 }
 
 func DeleteTodo() int {
@@ -61,8 +60,31 @@ func DeleteTodo() int {
 	return id
 }
 
+func readString(scanner *bufio.Scanner) string {
+	scanner.Scan()
+	text := scanner.Text()
+	return text
+}
+
+func readInt(scanner *bufio.Scanner) int {
+	scanner.Scan()
+	num, err := strconv.Atoi(scanner.Text())
+	if err != nil {
+		fmt.Println(err)
+	}
+	return num
+}
+
+func readBool(scanner *bufio.Scanner) bool {
+	scanner.Scan()
+	bc, err := strconv.ParseBool(scanner.Text())
+	if err != nil {
+		fmt.Println(err)
+	}
+	return bc
+}
+
 func main() {
-	var op1 int
 	for {
 		fmt.Println(
 			"1. Add Todo",
@@ -73,41 +95,33 @@ func main() {
 
 			"\nChoose an option",
 		)
-		fmt.Scanln(&op1)
+		op1 := readInt(scanner)
 
 		switch op1 {
 		case 1:
 
 			fmt.Println("enter todo:")
-			scanner := bufio.NewScanner(os.Stdin)
-			scanner.Scan()
-			text := scanner.Text()
+			text := readString(scanner)
 
 			fmt.Println("enter todo status, true and false only:")
-			bscan := bufio.NewScanner(os.Stdin)
-			bscan.Scan()
-			bconv := bscan.Text()
-			bc, _ := strconv.ParseBool(bconv)
+			bc := readBool(scanner)
 			AddTodo(text, bc)
 		case 2:
-			ListTodo()
+			todos := ListTodo()
+			fmt.Println(todos)
 		case 3:
 			DeleteTodo()
 		case 4:
-			var uId int
 			fmt.Println("enter the todo number to update")
-			fmt.Scanln(&uId)
+			id := readInt(scanner)
+
 			fmt.Println("enter Update todo text")
-			uscan := bufio.NewScanner(os.Stdin)
-			uscan.Scan()
-			utext := uscan.Text()
+			text := readString(scanner)
 
 			fmt.Println("enter update todo status")
-			udscan := bufio.NewScanner(os.Stdin)
-			udscan.Scan()
-			udconv := udscan.Text()
-			uc, _ := strconv.ParseBool(udconv)
-			UpdateTodo(uId, utext, uc)
+			uc := readBool(scanner)
+
+			UpdateTodo(id, text, uc)
 		case 5:
 			os.Exit(0)
 		}
