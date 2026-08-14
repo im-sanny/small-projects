@@ -20,7 +20,7 @@ var keep = []Todo{
 var nextId = 3
 var scanner = bufio.NewScanner(os.Stdin)
 
-func AddTodo(text string, done bool) (string, bool) {
+func AddTodo(text string, done bool) {
 	id := nextId
 	nextId++
 	todo := Todo{
@@ -29,8 +29,6 @@ func AddTodo(text string, done bool) (string, bool) {
 		Done: done,
 	}
 	keep = append(keep, todo)
-
-	return todo.Text, todo.Done
 }
 
 func UpdateTodo(id int, todo string, done bool) {
@@ -47,10 +45,7 @@ func ListTodo() []Todo {
 	return keep
 }
 
-func DeleteTodo() int {
-	var id int
-	fmt.Println("enter the id of todo u want to delete:")
-	fmt.Scanln(&id)
+func DeleteTodo(id int) int {
 	for i, v := range keep {
 		if v.ID == id {
 			keep = append(keep[:i], keep[i+1:]...)
@@ -66,22 +61,22 @@ func readString(scanner *bufio.Scanner) string {
 	return text
 }
 
-func readInt(scanner *bufio.Scanner) int {
+func readInt(scanner *bufio.Scanner) (int, error) {
 	scanner.Scan()
 	num, err := strconv.Atoi(scanner.Text())
 	if err != nil {
 		fmt.Println(err)
 	}
-	return num
+	return num, err
 }
 
-func readBool(scanner *bufio.Scanner) bool {
+func readBool(scanner *bufio.Scanner) (bool, error) {
 	scanner.Scan()
 	bc, err := strconv.ParseBool(scanner.Text())
 	if err != nil {
 		fmt.Println(err)
 	}
-	return bc
+	return bc, err
 }
 
 func main() {
@@ -95,7 +90,7 @@ func main() {
 
 			"\nChoose an option",
 		)
-		op1 := readInt(scanner)
+		op1, _ := readInt(scanner)
 
 		switch op1 {
 		case 1:
@@ -104,22 +99,27 @@ func main() {
 			text := readString(scanner)
 
 			fmt.Println("enter todo status, true and false only:")
-			bc := readBool(scanner)
+			bc, _ := readBool(scanner)
 			AddTodo(text, bc)
 		case 2:
 			todos := ListTodo()
-			fmt.Println(todos)
+			for _, v := range todos {
+				fmt.Println("\nID:", v.ID, "\nTodo:", v.Text, "\nStatus:", v.Done)
+			}
+
 		case 3:
-			DeleteTodo()
+			fmt.Println("enter id number to delete")
+			id, _ := readInt(scanner)
+			DeleteTodo(id)
 		case 4:
 			fmt.Println("enter the todo number to update")
-			id := readInt(scanner)
+			id, _ := readInt(scanner)
 
 			fmt.Println("enter Update todo text")
 			text := readString(scanner)
 
 			fmt.Println("enter update todo status")
-			uc := readBool(scanner)
+			uc, _ := readBool(scanner)
 
 			UpdateTodo(id, text, uc)
 		case 5:
