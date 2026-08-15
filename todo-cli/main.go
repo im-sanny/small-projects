@@ -94,13 +94,13 @@ func main() {
 
 		switch op1 {
 		case 1:
-
 			fmt.Println("enter todo:")
 			text := readString(scanner)
 
 			fmt.Println("enter todo status, true and false only:")
 			bc, _ := readBool(scanner)
 			AddTodo(text, bc)
+
 		case 2:
 			todos := ListTodo()
 			for _, v := range todos {
@@ -111,6 +111,7 @@ func main() {
 			fmt.Println("enter id number to delete")
 			id, _ := readInt(scanner)
 			DeleteTodo(id)
+
 		case 4:
 			fmt.Println("enter the todo number to update")
 			id, _ := readInt(scanner)
@@ -122,6 +123,7 @@ func main() {
 			uc, _ := readBool(scanner)
 
 			UpdateTodo(id, text, uc)
+
 		case 5:
 			os.Exit(0)
 		}
