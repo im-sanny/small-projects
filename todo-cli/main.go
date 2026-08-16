@@ -45,6 +45,9 @@ func ListTodo() []Todo {
 	return keep
 }
 
+// A slice expression is [start:end]
+// [:i] = give me everything from beginning up to i, but don't include i
+// [i:] give me everything starting at index i.
 func DeleteTodo(id int) int {
 	for i, v := range keep {
 		if v.ID == id {
