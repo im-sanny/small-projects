@@ -82,7 +82,7 @@ func readBool(scanner *bufio.Scanner) (bool, error) {
 	return bc, err
 }
 
-func main() {
+func cli() {
 	for {
 		fmt.Println(
 			"1. Add Todo",
@@ -131,5 +131,8 @@ func main() {
 			os.Exit(0)
 		}
 	}
+}
 
+func main() {
+	cli()
 }
