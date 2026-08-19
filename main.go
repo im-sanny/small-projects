@@ -2,13 +2,14 @@ package main
 
 import "fmt"
 
-var nums = []int{10, 20, 30, 40, 50, 60}
+var nums = []string{"one", "two", "skip three", "four", "five"}
 
 func main() {
-	fmt.Println(nums[:2])
-	fmt.Println(nums[2+1:])
+	nums = append(nums[:2], nums[2+1:]...)
+	fmt.Println(nums)
 
-	a := []int{10, 20}
-	b := []int{30, 40, 50}
+	a := []int{1, 2}
+	b := []int{3, 4, 5}
 	a = append(a, b...)
+	fmt.Println(a)
 }
