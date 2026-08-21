@@ -84,6 +84,13 @@ func readBool(scanner *bufio.Scanner) (bool, error) {
 
 func cli() {
 	for {
+		fmt.Println("\n=== TODO CLI ===")
+		fmt.Println("1. Add Todo")
+		fmt.Println("2. List Todo")
+		fmt.Println("3. Delete Todo")
+		fmt.Println("4. Update Todo")
+		fmt.Println("5. Exit")
+		fmt.Println()
 
 		op1, _ := readInt(scanner)
 
@@ -126,14 +133,5 @@ func cli() {
 }
 
 func main() {
-	fmt.Println(
-			"1. Add Todo",
-			"\n2. List Todo",
-			"\n3. Delete Todo",
-			"\n4. Update Todo",
-			"\n5. Exit\n",
-
-			"\nChoose an option",
-		)
 	cli()
 }
