@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	markName  = "Golan_ Reminder"
+	markName  = "Golang_ Reminder"
 	markValue = "1"
 )
 
